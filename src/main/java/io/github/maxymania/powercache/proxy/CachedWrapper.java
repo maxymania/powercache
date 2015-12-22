@@ -19,7 +19,6 @@ import com.google.common.cache.Cache;
 import io.github.maxymania.powercache.Cached;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -28,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 public class CachedWrapper extends BaseWrapper{
     private Cache<MethodCall,Result> cache;
 
-    public CachedWrapper(Cache<MethodCall, Result> cache, Object base) {
+    public CachedWrapper(Object base, Cache<MethodCall, Result> cache) {
         super(base);
         this.cache = cache;
     }

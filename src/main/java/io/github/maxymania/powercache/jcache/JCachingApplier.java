@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Simon Schmidt
+ * Copyright 2015 simon.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,22 @@
  */
 package io.github.maxymania.powercache.jcache;
 
-import com.google.common.cache.AbstractCache;
-import javax.cache.Cache;
-import javax.cache.Caching;
+import com.google.common.cache.Cache;
+import io.github.maxymania.powercache.CachingApplier;
+import io.github.maxymania.powercache.proxy.MethodCall;
+import io.github.maxymania.powercache.proxy.Result;
 
 /**
- * 
- * @author Simon Schmidt
- * @param <K>
- * @param <V> 
+ *
+ * @author simon
  */
-public class JCacheCache<K,V> extends AbstractCache<K,V> {
-    Cache<K,V> cache;
-
-    public JCacheCache(String name,Class<K> k, Class<V> v){
-        this.cache = Caching.getCache(name, k, v);
-    }
-    public JCacheCache(Cache<K, V> cache) {
-        this.cache = cache;
+public class JCachingApplier extends CachingApplier {
+    private final String cacheName;
+    public JCachingApplier(String cacheName) {
+        this.cacheName = cacheName;
     }
     @Override
-    public V getIfPresent(Object key) {
-        K k = (K)key;
-        return cache.get(k);
-    }
-    @Override
-    public void put(K key, V value) {
-        cache.put(key, value);
+    protected Cache<MethodCall,Result> createCache() {
+        return new JCacheCache(cacheName,MethodCall.class,Result.class);
     }
 }

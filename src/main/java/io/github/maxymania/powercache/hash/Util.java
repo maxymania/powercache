@@ -26,8 +26,8 @@ import java.nio.charset.Charset;
 public class Util {
 
     private static final String HEX = "0123456789abcdef";
-    static final Charset UTF = Charset.forName("utf8");
-    static final AnyFunnel funnel = new AnyFunnel();
+    public static final Charset UTF = Charset.forName("utf8");
+    public static final AnyFunnel funnel = new AnyFunnel();
 
     public static byte[] hash(HashFunction hf, String catname, Object[] obj) {
         Hasher digest = hf.newHasher();

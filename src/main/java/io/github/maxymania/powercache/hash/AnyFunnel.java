@@ -34,6 +34,14 @@ public class AnyFunnel implements Funnel<Object> {
 
     @Override
     public void funnel(Object data, PrimitiveSink sink) {
+        funnel(data,sink,0);
+    }
+    private void funnel(Object data, PrimitiveSink sink,int dept) {
+        if(dept>80)
+        {
+            sink.putByte(ONE);
+            return;
+        }
         sink.putByte(MARK);
         if (data == null) {
             sink.putByte(NUL);
@@ -88,11 +96,11 @@ public class AnyFunnel implements Funnel<Object> {
         } else if (data instanceof Double) {
             sink.putDouble((Double) data);
         } else {
-            putObject(data, sink);
+            putObject(data, sink, dept);
         }
     }
 
-    private void putObject(Object data, PrimitiveSink sink) {
+    private void putObject(Object data, PrimitiveSink sink, int dept) {
         for (Field fld : data.getClass().getFields()) {
             if (Modifier.isStatic(fld.getModifiers())) {
                 continue;
@@ -100,7 +108,7 @@ public class AnyFunnel implements Funnel<Object> {
             sink.putString(fld.getName(), Util.UTF);
             try {
                 Object obj = fld.get(data);
-                funnel(obj, sink);
+                funnel(obj, sink, dept+1);
             } catch (IllegalArgumentException e) {
             } catch (IllegalAccessException e) {
             }

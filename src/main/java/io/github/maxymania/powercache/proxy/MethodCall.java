@@ -15,6 +15,10 @@
  */
 package io.github.maxymania.powercache.proxy;
 
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
+import io.github.maxymania.powercache.hash.Util;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
@@ -39,13 +43,17 @@ public class MethodCall implements Serializable {
     public Object[] getData() {
         return data.clone();
     }
-    
-    
-    
+
     @Override
     public int hashCode() {
-        int hash = 7;
-        return hash;
+        //int hash = 7;
+        //hash = 79 * hash + Objects.hashCode(this.name);
+        //hash = 79 * hash + Arrays.deepHashCode(this.data);
+        //return hash;
+        Hasher h = Hashing.adler32().newHasher();
+        h.putString(name, Util.UTF);
+        h.putObject(data, Util.funnel);
+        return h.hash().asInt();
     }
 
     @Override
