@@ -16,8 +16,6 @@
 package io.github.maxymania.powercache.jcache;
 
 import com.google.common.cache.AbstractCache;
-import io.github.maxymania.powercache.proxy.MethodCall;
-import io.github.maxymania.powercache.proxy.Result;
 import javax.cache.Cache;
 import javax.cache.Caching;
 
@@ -25,24 +23,24 @@ import javax.cache.Caching;
  *
  * @author Simon Schmidt
  */
-public class JCacheCache extends AbstractCache<MethodCall,Result> {
-    Cache<MethodCall,Result> cache;
+public class JCacheCache<K,V> extends AbstractCache<K,V> {
+    Cache<K,V> cache;
 
-    public JCacheCache(String name){
-        this.cache = Caching.getCache(name, MethodCall.class, Result.class);
+    public JCacheCache(String name,Class<K> k, Class<V> v){
+        this.cache = Caching.getCache(name, k, v);
     }
-    public JCacheCache(Cache<MethodCall, Result> cache) {
+    public JCacheCache(Cache<K, V> cache) {
         this.cache = cache;
     }
     
     @Override
-    public Result getIfPresent(Object key) {
-        MethodCall mcall = (MethodCall)key;
-        return cache.get(mcall);
+    public V getIfPresent(Object key) {
+        K k = (K)key;
+        return cache.get(k);
     }
 
     @Override
-    public void put(MethodCall key, Result value) {
+    public void put(K key, V value) {
         cache.put(key, value);
     }
     

@@ -28,20 +28,25 @@ import net.spy.memcached.transcoders.Transcoder;
  *
  * @author simon
  */
-public class KryoTranscoder implements Transcoder<Result> {
+public class KryoTranscoder<V> implements Transcoder<V> {
     static ThreadLocal<Kryo> kryo = new ThreadLocal<Kryo>(){
         @Override
         protected Kryo initialValue() {
             return new Kryo();
         }
     };
+    private Class<V> clazz;
+    public KryoTranscoder(Class<V> clazz) {
+        this.clazz = clazz;
+    }
+    
     @Override
     public boolean asyncDecode(CachedData cd) {
         return false;
     }
 
     @Override
-    public CachedData encode(Result t) {
+    public CachedData encode(V t) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Output out = new Output(baos);
         kryo.get().writeObject(out, t);
@@ -50,10 +55,10 @@ public class KryoTranscoder implements Transcoder<Result> {
     }
 
     @Override
-    public Result decode(CachedData cd) {
+    public V decode(CachedData cd) {
         ByteArrayInputStream bais = new ByteArrayInputStream(cd.getData());
         Input in = new Input(bais);
-        return kryo.get().readObject(in, Result.class);
+        return kryo.get().readObject(in, clazz);
     }
 
     @Override

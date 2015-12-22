@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 simon.
+ * Copyright 2015 Simon Schmidt.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,11 @@ public class Util {
     public static byte[] hash(HashFunction hf, String catname, Object[] obj) {
         Hasher digest = hf.newHasher();
         digest.putString(catname, UTF);
+        digest.putObject(obj, funnel);
+        return digest.hash().asBytes();
+    }
+    public static byte[] hash(HashFunction hf, Object obj) {
+        Hasher digest = hf.newHasher();
         digest.putObject(obj, funnel);
         return digest.hash().asBytes();
     }

@@ -19,6 +19,7 @@ import com.google.common.cache.Cache;
 import io.github.maxymania.powercache.Cached;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -51,15 +52,17 @@ public class CachedWrapper extends BaseWrapper{
                 try{
                     res.value = innerInvoke(proxy,method,args);
                 }catch(Throwable e){
-                    if(e instanceof Exception)
-                        throw (Exception)e;
-                    if(e instanceof Error)
-                        throw (Error)e;
+                    throw new HiddenWrapper(e);
                 }
                 return res;
             }
         };
-        return cache.get(call, res).value;
+        try{
+            return cache.get(call, res).value;
+        }catch(Throwable e){
+            Throwable t = HiddenWrapper.findClause(e);
+            if(t==null) t = new Error();
+            throw t;
+        }
     }
-    
 }

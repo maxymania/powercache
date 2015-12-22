@@ -18,6 +18,8 @@ package io.github.maxymania.powercache.memcached;
 import com.google.common.cache.AbstractCache;
 import com.google.common.hash.HashFunction;
 import io.github.maxymania.powercache.hash.Util;
+import io.github.maxymania.powercache.proxy.MethodCall;
+import io.github.maxymania.powercache.proxy.Result;
 import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.transcoders.Transcoder;
 
@@ -25,19 +27,19 @@ import net.spy.memcached.transcoders.Transcoder;
  *
  * @author Simon Schmidt
  */
-public class MemCache<K,V> extends AbstractCache<K,V> {
+public class ProxyMemCache extends AbstractCache<MethodCall,Result> {
     HashFunction hf;
     MemcachedClient client;
-    Transcoder<V> tcr;
+    Transcoder<Result> tcr;
     int expires;
 
-    public MemCache(HashFunction hf, MemcachedClient client, Class<V> vcls, int expires) {
+    public ProxyMemCache(HashFunction hf, MemcachedClient client, int expires) {
         this.hf = hf;
         this.client = client;
-        this.tcr = new KryoTranscoder(vcls);
+        this.tcr = new KryoTranscoder(Result.class);
         this.expires = expires;
     }
-    public MemCache(HashFunction hf, MemcachedClient client, Transcoder<V> tcr, int expires) {
+    public ProxyMemCache(HashFunction hf, MemcachedClient client, Transcoder<Result> tcr, int expires) {
         this.hf = hf;
         this.client = client;
         this.tcr = tcr;
@@ -45,13 +47,16 @@ public class MemCache<K,V> extends AbstractCache<K,V> {
     }
     
     @Override
-    public V getIfPresent(Object key) {
-        String k = Util.hex(Util.hash(hf, key));
+    public Result getIfPresent(Object key) {
+        MethodCall mcall = (MethodCall)key;
+        String k = Util.hex(Util.hash(hf, mcall.getName(), mcall.getData()));
         return client.get(k, tcr);
     }
+    
     @Override
-    public void put(K key, V value) {
-        String k = Util.hex(Util.hash(hf, key));
+    public void put(MethodCall mcall, Result value) {
+        String k = Util.hex(Util.hash(hf, mcall.getName(), mcall.getData()));
         client.set(k, expires, value, tcr);
     }
+    
 }
